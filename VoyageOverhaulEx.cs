@@ -118,35 +118,6 @@ public class VoyageOverhaulSettings
     }
 }
 
-[HarmonyPatch(typeof(FishingRod), "PullItemsFromSea")]
-public class fishingRodPatch
-{
-    static AccessTools.FieldRef<FishingRod, bool> ResetRod = AccessTools.FieldRefAccess<FishingRod, bool>("ResetRod");
-
-    [HarmonyPrefix]
-    static bool pullItems(FishingRod __instance, bool ___isMetalRod, FishingBaitHandler ___fishingBaitHandler, Network_Player ___playerNetwork,
-        PlayerAnimator ___playerAnimator, Rope ___rope, Throwable ___throwable)
-    {
-        Item_Base randomItemFromCurrentBaitPool = ___fishingBaitHandler.GetRandomItemFromCurrentBaitPool(___isMetalRod);
-        if (randomItemFromCurrentBaitPool != null)
-        {
-            ___playerNetwork.Inventory.AddItem(randomItemFromCurrentBaitPool.UniqueName, 1);
-            ___fishingBaitHandler.ConsumeBait();
-        }
-        ___playerAnimator.SetAnimation(PlayerAnimation.Trigger_FishingRetract, false);
-        __instance.rodAnimator.SetTrigger("FishingRetract");
-        ParticleManager.PlaySystem("WaterSplash_Hook", ___throwable.throwableObject.position + Vector3.up * 0.1f, true);
-
-        ResetRod(__instance);
-
-        if (___playerNetwork.Inventory.RemoveDurabillityFromHotSlot(1))
-        {
-            ___rope.gameObject.SetActive(false);
-        }
-        return false;
-    }
-}
-
 [HarmonyPatch]
 public class Patch_Raft
 {
